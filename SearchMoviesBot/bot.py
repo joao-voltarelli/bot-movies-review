@@ -36,7 +36,7 @@ class Bot(DesktopBot):
         # Parsing the page content and extracting only the movies name
         data = page_content.split('\n')
         for line in data:
-            if line.__contains__('commentdelete'):
+            if 'commentdelete' in line:
                 movie_list.append(line.replace('commentdelete', ''))
         
         print('\nMovies => ' + str(movie_list) + '\n')
@@ -80,9 +80,9 @@ class Bot(DesktopBot):
             reviewers_score = rating_data[4].replace('\r', '')
             audience_score = rating_data[7].replace('\r', '')
 
-            if not reviewers_score.__contains__("%"):
+            if not "%" in reviewers_score:
                 reviewers_score = " - "
-            if not audience_score.__contains__("%"):
+            if not "%" in audience_score:
                 audience_score = " - "
 
             movie_review = []
