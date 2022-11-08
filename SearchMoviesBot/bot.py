@@ -1,6 +1,7 @@
 from botcity.core import DesktopBot
 import xlsxwriter
 import os
+import re
 
 class Bot(DesktopBot):
     def action(self, execution=None):
@@ -27,7 +28,7 @@ class Bot(DesktopBot):
             self.not_found("get_movies")
         self.click()
         
-        self.wait(1000)
+        self.wait(3000)
         self.control_a(1000)
         self.control_c(1000)
         page_content = self.get_clipboard()
@@ -64,26 +65,35 @@ class Bot(DesktopBot):
             self.tab(1000)
             self.tab(1000)
             self.tab(1000)
+            self.tab(1000)
             self.enter()
 
-            self.wait(10000)
-            self.control_a(1000)
-            self.control_c(1000)
-            movie_page = self.get_clipboard()
-            self.wait(1000)
-            self.click_at(200,200)
-
             # Extracting the reviewers score and the audience score
-            start_index = str(movie_page).index("View All")
-            end_index = str(movie_page).index("AUDIENCE SCORE")
-            rating_data = str(movie_page[start_index : end_index]).split('\n')       
-            reviewers_score = rating_data[4].replace('\r', '')
-            audience_score = rating_data[7].replace('\r', '')
+            reviewers_score = '-'
+            audience_score = '-'
 
-            if not "%" in reviewers_score:
-                reviewers_score = " - "
-            if not "%" in audience_score:
-                audience_score = " - "
+            if self.find( "review_info", matching=0.97, waiting_time=10000):
+                self.click_relative(52, -35)
+                self.wait(1000)
+
+                if self.find( "review_1", matching=0.97, waiting_time=3000):
+                    self.click()
+                    self.control_a()
+                    self.control_c()
+                    review_data = self.get_clipboard()
+                    reviewers_score = re.search('(\d+%)', review_data)
+                    if reviewers_score:
+                        reviewers_score = reviewers_score.group()
+                
+                if self.find( "review_2", matching=0.97, waiting_time=3000):
+                    self.click()
+                    self.control_a()
+                    self.control_c()
+                    review_data = self.get_clipboard()
+                    audience_score = re.search('(\d+%)', review_data)
+                    if audience_score:
+                        audience_score = audience_score.group()
+                self.key_esc()
 
             movie_review = []
             movie_review.append(str(movie).replace('\r', ''))
